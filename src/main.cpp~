@@ -1,0 +1,135 @@
+#include <Arduino.h>
+#include <stdint.h>
+
+//lol we need to change these
+int clockPin = 2;
+int dataPin = 3;
+int latchPin = 4;
+int blPin = 5;
+int ledPin = 6;
+
+const uint64_t PAD00 = 0x0000000200000000ULL;
+const uint64_t PAD01 = 0x0000004000000000ULL;
+const uint64_t PAD02 = 0x0000002000000000ULL;
+const uint64_t PAD03 = 0x0000000800000000ULL;
+const uint64_t PAD04 = 0x0000000080000000ULL;
+const uint64_t PAD05 = 0x0000000008000000ULL;
+const uint64_t PAD06 = 0x0000000002000000ULL;
+const uint64_t PAD07 = 0x0000000020000000ULL;
+const uint64_t PAD10 = 0x0000000000000400ULL;
+const uint64_t PAD11 = 0x0000000000000200ULL;
+const uint64_t PAD12 = 0x0000000000000800ULL;
+const uint64_t PAD13 = 0x0000000000000100ULL;
+const uint64_t PAD14 = 0x0080000000000000ULL;
+const uint64_t PAD15 = 0x0000000000008000ULL;
+const uint64_t PAD16 = 0x0000000000004000ULL;
+const uint64_t PAD17 = 0x0000000000001000ULL;
+const uint64_t PAD20 = 0x0000000000002000ULL;
+const uint64_t PAD21 = 0x0000000000020000ULL;
+const uint64_t PAD22 = 0x0000000000100000ULL;
+const uint64_t PAD23 = 0x0000000010000000ULL;
+const uint64_t PAD24 = 0x0000000020000000ULL;
+const uint64_t PAD25 = 0x0008000000000000ULL;
+const uint64_t PAD26 = 0x0000800000000000ULL;
+const uint64_t PAD27 = 0x0000000000010000ULL;
+const uint64_t PAD30 = 0x0000000002000000ULL;
+const uint64_t PAD31 = 0x0000000001000000ULL;
+const uint64_t PAD32 = 0x0000000000080000ULL;
+const uint64_t PAD33 = 0x0000000000040000ULL;
+const uint64_t PAD34 = 0x0000000000200000ULL;
+const uint64_t PAD35 = 0x0000000008000000ULL;
+const uint64_t PAD36 = 0x0000000004000000ULL;
+const uint64_t PAD37 = 0x0000000000400000ULL;
+const uint64_t PAD40 = 0x0000000080000000ULL;
+const uint64_t PAD41 = 0x0000000040000000ULL;
+const uint64_t PAD42 = 0x0000000000800000ULL;
+const uint64_t PAD43 = 0x0000000800000000ULL;
+const uint64_t PAD44 = 0x0000000400000000ULL;
+const uint64_t PAD45 = 0x0000080000000000ULL;
+const uint64_t PAD46 = 0x0000002000000000ULL;
+const uint64_t PAD47 = 0x0000004000000000ULL;
+const uint64_t PAD50 = 0x0000000200000000ULL;
+const uint64_t PAD51 = 0x0000000100000000ULL;
+const uint64_t PAD52 = 0x0000008000000000ULL;
+const uint64_t PAD53 = 0x0000001000000000ULL;
+const uint64_t PAD54 = 0x0000040000000000ULL;
+const uint64_t PAD55 = 0x0000200000000000ULL;
+const uint64_t PAD56 = 0x0000010000000000ULL;
+const uint64_t PAD57 = 0x0000020000000000ULL;
+const uint64_t PAD60 = 0x0000100000000000ULL;
+const uint64_t PAD61 = 0x0000400000000000ULL;
+const uint64_t PAD62 = 0x0001000000000000ULL;
+const uint64_t PAD63 = 0x0004000000000000ULL;
+const uint64_t PAD64 = 0x0002000000000000ULL;
+const uint64_t PAD65 = 0x0010000000000000ULL;
+const uint64_t PAD66 = 0x0040000000000000ULL;
+const uint64_t PAD67 = 0x0020000000000000ULL;
+const uint64_t PAD70 = 0x0400000000000000ULL;
+const uint64_t PAD71 = 0x0100000000000000ULL;
+const uint64_t PAD72 = 0x0200000000000000ULL;
+const uint64_t PAD73 = 0x1000000000000000ULL;
+const uint64_t PAD74 = 0x0000000000000001ULL;
+const uint64_t PAD75 = 0x8000000000000000ULL;
+const uint64_t PAD76 = 0x4000000000000000ULL;
+const uint64_t PAD77 = 0x2000000000000000ULL;
+
+
+uint64_t data;
+int d = 2000;
+
+void writeData(uint64_t data) {
+  //data = data | PAD00;
+  //data = ~data;
+  for (int i=0; i<d; ++i) {
+    data = ~data;
+    char* arr = (char*) &data;
+    digitalWrite(latchPin, LOW);
+    for (int i=0; i < 8; ++i) {
+      char c = arr[i];
+      shiftOut(dataPin, clockPin, LSBFIRST, c); 
+    }
+    digitalWrite(latchPin, HIGH);
+    delay(1);
+  }
+}
+
+void waveFor(int msec) {
+  /*bool b = 1;
+  for (int i=0; i<msec; ++i) {
+    digitalWrite(polPin, b);
+    delay(1);
+    b = !b;
+    }*/
+  digitalWrite(blPin, HIGH);
+  delay(msec);
+}
+
+void setup() {
+  pinMode(latchPin, OUTPUT);
+  pinMode(dataPin, OUTPUT);  
+  pinMode(clockPin, OUTPUT);
+  pinMode(blPin, OUTPUT);
+  pinMode(ledPin, OUTPUT);
+  Serial.begin(9600);
+  digitalWrite(blPin, HIGH);
+  digitalWrite(ledPin, HIGH);
+}
+
+void loop() {
+  /*writeData(PAD02);
+  writeData(PAD03);
+  writeData(PAD04);
+  writeData(PAD05);
+  writeData(PAD06);
+  writeData(PAD07);
+  writeData(PAD06);
+  writeData(PAD05);
+  writeData(PAD04);
+  writeData(PAD03);
+  writeData(PAD07);
+  writeData(PAD06);
+  writeData(PAD05);
+  writeData(PAD06);*/
+  Serial.println(5.0*(float)analogRead(A0)/1023.0);
+  delay(100);
+}
