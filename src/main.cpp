@@ -1,53 +1,58 @@
 #include <Arduino.h>
 #include <stdint.h>
 
-//lol we need to change these
-int clockPin = 2;
-int dataPin = 3;
-int latchPin = 4;
-int blPin = 5;
-int ledPin = 6;
+int dataPin = 2; // DIOA
+int blPin = 3; // BL
+int polPin = 4; // POL
+int dirPin = 6; // DIR
+int clockPin = 5; // CLK
+int latchPin = 7; // LE
+
+uint64_t one = 1;
 uint64_t data;
 int d = 2000;
 
 void writeData(uint64_t data) {
-  //data = data | PAD00;
-  //data = ~data;
-  for (int i=0; i<d; ++i) {
-    data = ~data;
-    char* arr = (char*) &data;
-    digitalWrite(latchPin, LOW);
-    for (int i=0; i < 8; ++i) {
-      char c = arr[i];
-      shiftOut(dataPin, clockPin, LSBFIRST, c); 
-    }
-    digitalWrite(latchPin, HIGH);
-    delay(1);
+  char* arr = (char*) &data;
+  digitalWrite(latchPin, LOW);
+  for (int i=0; i < 8; ++i) {
+    char c = arr[i];
+    shiftOut(dataPin, clockPin, LSBFIRST, c); 
   }
-}
-
-void waveFor(int msec) {
-  /*bool b = 1;
-  for (int i=0; i<msec; ++i) {
-    digitalWrite(polPin, b);
-    delay(1);
-    b = !b;
-    }*/
-  digitalWrite(blPin, HIGH);
-  delay(msec);
+  digitalWrite(latchPin, HIGH);
 }
 
 void setup() {
+  pinMode(13, OUTPUT);
   pinMode(latchPin, OUTPUT);
   pinMode(dataPin, OUTPUT);  
   pinMode(clockPin, OUTPUT);
   pinMode(blPin, OUTPUT);
-  pinMode(ledPin, OUTPUT);
+  pinMode(dirPin, OUTPUT);
+  pinMode(polPin, OUTPUT);
   Serial.begin(9600);
+  digitalWrite(blPin, LOW);
+  digitalWrite(polPin, LOW); // INVERTING ALL OUTPUT
+  digitalWrite(clockPin, LOW);
+  digitalWrite(dataPin, LOW);
+  digitalWrite(latchPin, HIGH);
+  digitalWrite(dirPin, LOW);
+  delay(1000);
   digitalWrite(blPin, HIGH);
-  digitalWrite(ledPin, HIGH);
 }
 
+int delayTime = 250;
 void loop() {
-  
+  writeData(one<<43);
+  delay(delayTime);
+  writeData(one<<42);
+  delay(delayTime);
+  writeData(one<<41);
+  delay(delayTime);
+  writeData(one<<40);
+  delay(delayTime);
+  writeData(one<<41);
+  delay(delayTime);
+  writeData(one<<42);
+  delay(delayTime);
 }
